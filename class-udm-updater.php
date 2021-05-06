@@ -100,8 +100,6 @@ class Updraft_Manager_Updater_1_8 {
 		if (version_compare($wp_version, '5.5', '<')) {
 			add_filter('auto_update_plugin', array($this, 'auto_update_plugin'), 20, 2);
 		}
-
-		add_action('admin_init', array($this, 'disconnect_cloned_site'));
 	}
 
 	/**
@@ -110,8 +108,6 @@ class Updraft_Manager_Updater_1_8 {
 	public function disconnect_cloned_site() {
 
 		global $pagenow; 
-
-		if (defined('DOING_AJAX') && DOING_AJAX || 'plugins.php' !== $pagenow) return;
 
 		$udm_options = $this->get_option($this->option_name);
 		$site_url = parse_url(network_site_url());
@@ -384,6 +380,7 @@ class Updraft_Manager_Updater_1_8 {
 	 */
 	public function core_upgrade_preamble() {
 		if (!current_user_can('update_plugins')) return;
+		$this->disconnect_cloned_site();
 		if (!$this->is_connected()) $this->admin_notice_not_connected();
 	}
 
@@ -392,6 +389,7 @@ class Updraft_Manager_Updater_1_8 {
 	 */
 	public function load_plugins_php() {
 		if (!current_user_can('update_plugins')) return;
+		$this->disconnect_cloned_site();
 		$this->add_admin_notice_if_not_connected();
 	}
 
